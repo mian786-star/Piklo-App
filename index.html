@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piklo Feed</title>
+    <!-- Icons Library -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <h1 class="logo" style="cursor: pointer;" onclick="window.location.reload()">Piklo</h1>
+            
+            <div class="search-box">
+                <input type="text" placeholder="Search" onkeyup="searchUser(this.value)">
+                <div class="search-results" id="search-res" style="display:none; position:absolute; background:white; border:1px solid #ddd; padding:10px;"></div>
+            </div>
+
+            <div class="nav-icons">
+                <button class="nav-icon"><i class='bx bxs-home-alt-2'></i></button>
+                <button class="nav-icon" onclick="window.location.href='/reels'"><i class='bx bxs-movie-play'></i></button>
+                <button class="nav-icon" onclick="document.getElementById('imageInput').click()"><i class='bx bxs-plus-square'></i></button>
+                <button class="nav-icon" onclick="window.location.href='/profile'"><i class='bx bxs-user-circle'></i></button>
+            </div>
+            <!-- Hidden Upload -->
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        </div>
+    </nav>
+
+    <div class="feed-container">
+        <!-- JS se Posts Load Hongi -->
+        <div style="text-align:center; margin-top:50px; color:#888;">Loading Feed...</div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        function searchUser(q) {
+            const box = document.getElementById('search-res');
+            if(q.length<1) { box.style.display='none'; return; }
+            fetch(`/api/search?q=${q}`).then(r=>r.json()).then(u=>{
+                box.innerHTML = u.length ? u.map(x=>`<div style="padding:5px; cursor:pointer;" onclick="window.location.href='/profile/${x}'">${x}</div>`).join('') : 'No user';
+                box.style.display='block';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Piklo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Same styles as Login */
+        body { background: #fafafa; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { background: white; padding: 40px; border: 1px solid #dbdbdb; width: 300px; text-align: center; }
+        .logo { font-size: 40px; font-weight: bold; background: -webkit-linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #dbdbdb; border-radius: 3px; background: #fafafa; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #0095f6; color: white; border: none; border-radius: 3px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .link { margin-top: 20px; font-size: 14px; }
+        a { color: #0095f6; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <h1 class="logo">Piklo</h1>
+        <h3 style="color:#8e8e8e;">Sign up to see photos from your friends.</h3>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="signup()">Sign Up</button>
+        <p class="link">Have an account? <a href="login.html">Log in</a></p>
+    </div>
+
+    <script>
+        function signup() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            fetch('/api/signup', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: u, password: p})
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    alert("Account created! Please login.");
+                    window.location.href = 'login.html';
+                } else alert(data.error);
+            });
+        }
+    </script>
+</body>
+</html>

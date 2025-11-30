@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Piklo</title>
+    <!-- Boxicons for Icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- External CSS Linked -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* --- Profile Specific Overrides --- */
+        .profile-container {
+            max-width: 935px; margin: 0 auto; padding: 30px 20px 0;
+        }
+
+        .profile-header {
+            display: flex; margin-bottom: 44px;
+        }
+
+        .profile-pic-container {
+            flex-grow: 1; flex-basis: 0; display: flex; justify-content: center; margin-right: 30px;
+        }
+
+        .dp-large {
+            width: 150px; height: 150px; border-radius: 50%;
+            background-color: #fafafa; border: 1px solid #dbdbdb;
+            background-size: cover; background-position: center;
+        }
+
+        .profile-info {
+            flex-grow: 2; flex-basis: 30px; color: var(--text-main);
+        }
+
+        .top-row {
+            display: flex; align-items: center; margin-bottom: 20px; gap: 20px;
+        }
+
+        .username-text {
+            font-size: 28px; font-weight: 300; line-height: 32px;
+        }
+
+        .action-btns { display: flex; gap: 10px; }
+
+        /* Buttons Styling */
+        .btn-edit, .btn-follow, .btn-following {
+            border-radius: 4px; font-weight: 600; font-size: 14px;
+            padding: 5px 16px; cursor: pointer; border: 1px solid transparent;
+        }
+
+        .btn-edit { /* Edit Profile / Following */
+            background-color: transparent; border: 1px solid #dbdbdb; color: var(--text-main);
+        }
+        .btn-edit:hover { background-color: #fafafa; }
+
+        .btn-follow { /* Follow (Blue) */
+            background-color: var(--primary); color: white;
+        }
+        .btn-follow:hover { background-color: #0086e0; }
+
+        .btn-icon {
+            font-size: 24px; cursor: pointer; display: flex; align-items: center;
+        }
+
+        .stats-row {
+            display: flex; gap: 40px; margin-bottom: 20px; font-size: 16px;
+        }
+        .stats-row b { font-weight: 600; }
+
+        .bio-section { font-size: 14px; line-height: 24px; }
+        .real-name { font-weight: 600; }
+
+        /* Mobile Responsive */
+        @media (max-width: 735px) {
+            .profile-header { flex-direction: column; }
+            .profile-pic-container { margin-right: 0; margin-bottom: 20px; }
+            .dp-large { width: 77px; height: 77px; }
+            .top-row { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .profile-info { padding-left: 20px; }
+            .stats-row { border-top: 1px solid #dbdbdb; padding: 15px 0; justify-content: space-around; gap: 0; margin-top: 20px; }
+            .stats-row li { display: flex; flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <h1 class="logo" onclick="window.location.href='/'">Piklo</h1>
+            <div class="nav-icons">
+                <button class="nav-icon" onclick="window.location.href='/'"><i class='bx bx-home-alt-2'></i></button>
+                <button class="nav-icon" onclick="window.location.href='/reels'"><i class='bx bx-movie-play'></i></button>
+                <button class="nav-icon" onclick="document.getElementById('imageInput').click()"><i class='bx bx-plus-square'></i></button>
+                <button class="nav-icon" onclick="window.location.href='/profile'"><i class='bx bxs-user-circle'></i></button>
+                <button class="nav-icon" style="color: #ed4956;" onclick="window.location.href='/api/logout'"><i class='bx bx-log-out'></i></button>
+            </div>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        </div>
+    </nav>
+
+    <!-- Main Profile Area -->
+    <div class="profile-container">
+        <div class="profile-header">
+            <!-- Left: DP -->
+            <div class="profile-pic-container">
+                <div id="dp" class="dp-large"></div>
+            </div>
+
+            <!-- Right: Info -->
+            <div class="profile-info">
+                <div class="top-row">
+                    <h2 id="uname" class="username-text">...</h2>
+                    <div id="action-buttons" class="action-btns">
+                        <!-- Buttons will be injected here via JS -->
+                    </div>
+                </div>
+
+                <ul class="stats-row" style="list-style: none; padding: 0;">
+                    <li><span id="post-count"><b>0</b></span> posts</li>
+                    <li><span id="followers"><b>0</b></span> followers</li>
+                    <li><span id="following"><b>0</b></span> following</li>
+                </ul>
+
+                <div class="bio-section">
+                    <div id="realname" class="real-name">User</div>
+                    <div id="bio">Loading bio...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab-item active" onclick="switchTab('posts', this)">
+                <i class='bx bx-grid-alt'></i> POSTS
+            </div>
+            <div class="tab-item" onclick="switchTab('reels', this)">
+                <i class='bx bx-movie-play'></i> REELS
+            </div>
+        </div>
+
+        <!-- Grid Gallery -->
+        <div class="grid-container" id="grid">
+            <!-- Images/Videos will appear here -->
+        </div>
+    </div>
+
+    <!-- Script to Load Logic -->
+    <script src="js/script.js"></script> <!-- Linking common upload logic -->
+    <script>
+        let userData = {};
+
+        window.onload = function() {
+            // URL se username nikalo (/profile/ali) -> ali
+            const pathParts = window.location.pathname.split('/');
+            const targetUser = pathParts[2] || 'null'; // 'null' means my own profile
+
+            fetch(`/api/get_profile_data?username=${targetUser}`)
+            .then(res => res.json())
+            .then(data => {
+                if(!data.success) {
+                    alert("User not found!");
+                    window.location.href = '/';
+                    return;
+                }
+                userData = data;
+
+                // 1. Set Info
+                document.getElementById('uname').innerText = data.username;
+                document.getElementById('realname').innerText = data.username; // Real name logic baad mein daal sakte hain
+                document.getElementById('bio').innerText = data.bio;
+                document.getElementById('post-count').innerHTML = `<b>${data.posts.length + data.reels.length}</b>`; // Total posts
+                document.getElementById('followers').innerHTML = `<b>${data.followers}</b>`;
+                document.getElementById('following').innerHTML = `<b>${data.following}</b>`;
+                
+                // DP
+                document.getElementById('dp').style.backgroundImage = `url('https://ui-avatars.com/api/?name=${data.username}&background=random&size=200')`;
+
+                // 2. Set Buttons (Me vs Others)
+                const actionDiv = document.getElementById('action-buttons');
+                actionDiv.innerHTML = ''; // Clear first
+
+                if (data.is_me) {
+                    // Meri Profile: Show Edit & Settings
+                    actionDiv.innerHTML = `
+                        <button class="btn-edit" onclick="window.location.href='/settings.html'">Edit Profile</button>
+                        <i class='bx bx-cog btn-icon' onclick="alert('Settings page coming soon!')"></i>
+                    `;
+                } else {
+                    // Doosre ki Profile: Follow/Unfollow
+                    if (data.is_following) {
+                        // Already Following (Grey Button)
+                        actionDiv.innerHTML = `
+                            <button class="btn-edit" onclick="handleFollow('unfollow', '${data.username}')">Following</button>
+                            <button class="btn-edit" onclick="alert('Message feature coming soon!')">Message</button>
+                        `;
+                    } else {
+                        // Not Following (Blue Button)
+                        actionDiv.innerHTML = `
+                            <button class="btn-follow" onclick="handleFollow('follow', '${data.username}')">Follow</button>
+                        `;
+                    }
+                }
+
+                // 3. Load Posts initially
+                switchTab('posts', document.querySelector('.tab-item'));
+            });
+        }
+
+        // --- Tab Switching Logic ---
+        function switchTab(type, btn) {
+            // Update Tab Style
+            document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            // Render Grid
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            const items = (type === 'posts') ? userData.posts : userData.reels;
+
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #8e8e8e;">
+                        <div style="font-size: 40px; margin-bottom: 10px;"><i class='bx bx-camera'></i></div>
+                        <h2>No ${type} yet</h2>
+                    </div>`;
+                return;
+            }
+
+            items.forEach(filename => {
+                let content = '';
+                if(type === 'posts') {
+                    content = `<img src="/images/uploads/${filename}">`;
+                } else {
+                    content = `<video src="/images/uploads/${filename}"></video><i class='bx bx-play' style="position:absolute; top:10px; right:10px; color:white; font-size:20px;"></i>`;
+                }
+                
+                grid.innerHTML += `<div class="grid-box">${content}</div>`;
+            });
+        }
+
+        // --- Follow / Unfollow Logic ---
+        function handleFollow(action, username) {
+            fetch(`/api/${action}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    // Page reload karke button update karo (Simple tareeqa)
+                    window.location.reload();
+                } else {
+                    alert("Something went wrong");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
